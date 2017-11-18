@@ -21,6 +21,7 @@ public class Register: MonoBehaviour
         });
     }
 
+    //super-kostyl
     void Update()
     {
         if (logged)
