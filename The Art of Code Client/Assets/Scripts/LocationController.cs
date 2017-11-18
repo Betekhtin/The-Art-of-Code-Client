@@ -11,24 +11,20 @@ public class LocationController : MonoBehaviour {
     static private float _tile_size_ = 1f; //wtf
     static private string _sprite_path_ = "Sprites/";
     private Tile[,] location;
+    private Socket socket;
 
     public GameObject tilePrefab;
+    //public GameObject testObject;
     
     // Load location
     void Start () {
-
-        // Socket initialization
-        var socket = IO.Socket("http://91.225.131.192:8080");
+        
         string json = File.ReadAllText(Application.dataPath + "/Resources/test_location.json");
+        socket = GameObject.Find("SocketObject").GetComponent<SocketController>().getSocket();
+
         socket.On(Socket.EVENT_CONNECT, () =>
         {
             socket.Emit("auth", json);
-        });
-
-        socket.On("hi", (data) =>
-        {
-            Debug.Log(data);
-            socket.Disconnect();
         });
 
         // Get location json
@@ -52,6 +48,7 @@ public class LocationController : MonoBehaviour {
 
         //test
         //location[5, 5].setSprite(Resources.Load<Sprite>("Sprites/red_dot"));
+        //location[4, 4].setObject(testObject);
     }
 
 }

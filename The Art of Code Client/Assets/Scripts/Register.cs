@@ -3,15 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Quobject.SocketIoClientDotNet.Client;
+using UnityEngine.SceneManagement;
 
 public class Register: MonoBehaviour
 {
-
     public GameObject loginText, passwordText, repeatPasswordText, nicknameText;
+    private Socket socket;
 
     void Start()
     {
         GetComponent<Button>().onClick.AddListener(onLoginClicked);
+        socket = GameObject.Find("SocketObject").GetComponent<SocketController>().getSocket();
     }
 
     void onLoginClicked()
@@ -26,18 +28,13 @@ public class Register: MonoBehaviour
         {
             return;
         }
-
-        var socket = IO.Socket("http://91.225.131.223:8080");
-        socket.On(Socket.EVENT_CONNECT, () =>
-        {
-            socket.Emit("register", "{\"login\": \"" + login + "\", \"password\": \"" + password + "\", \"nickname\": \"" + nickname + "\"}");
-            Debug.Log("Connected");
-        });
+        
+        socket.Emit("register", "{\"login\": \"" + login + "\", \"password\": \"" + password + "\", \"nickname\": \"" + nickname + "\"}");
         socket.On("register", (data) =>
         {
             accessToken = (string)data;
             socket.Emit("auth", "{\"accessToken\": \"" + accessToken + "\"}");
-            Debug.Log("Auth");
+            socket.On("auth", () => { SceneManager.LoadScene("Game"); });
         });
     }
 
