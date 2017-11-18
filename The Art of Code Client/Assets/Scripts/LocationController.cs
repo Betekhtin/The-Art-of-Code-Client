@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using LitJson;
+using Quobject.SocketIoClientDotNet.Client;
 
 public class LocationController : MonoBehaviour {
 
     private JsonData locationData;
-    static private float _tile_size_ = 2.5f;
+    static private float _tile_size_ = 1f; //wtf
     static private string _sprite_path_ = "Sprites/";
     private Tile[,] location;
 
@@ -15,6 +16,20 @@ public class LocationController : MonoBehaviour {
     
     // Load location
     void Start () {
+
+        // Socket initialization
+        var socket = IO.Socket("http://91.225.131.192:8080");
+        string json = File.ReadAllText(Application.dataPath + "/Resources/test_location.json");
+        socket.On(Socket.EVENT_CONNECT, () =>
+        {
+            socket.Emit("auth", json);
+        });
+
+        socket.On("hi", (data) =>
+        {
+            Debug.Log(data);
+            socket.Disconnect();
+        });
 
         // Get location json
         locationData = JsonMapper.ToObject(File.ReadAllText(Application.dataPath + "/Resources/test_location.json"));
@@ -29,12 +44,14 @@ public class LocationController : MonoBehaviour {
                 GameObject tile = Instantiate(tilePrefab);
                 tile.transform.SetParent(transform, false);
                 tile.transform.position = new Vector3(x * _tile_size_, y * _tile_size_, 0);
-                Debug.Log(_sprite_path_ + (string)locationData["matrix"]["textures"][x][y]);
                 tile.GetComponent<SpriteRenderer>().sprite = 
                     Resources.Load(_sprite_path_ + (string)locationData["matrix"]["textures"][x][y], typeof(Sprite)) as Sprite;
                 location[x, y] = new Tile(tile);
             }
         }
+
+        //test
+        //location[5, 5].setSprite(Resources.Load<Sprite>("Sprites/red_dot"));
     }
 
 }

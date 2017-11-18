@@ -13,6 +13,8 @@ public class Tile{
     
     public void setObject(GameObject obj) {
         this.obj = obj;
+        this.obj.transform.SetParent(tile.transform, false);
+        this.obj.transform.localPosition = new Vector3(0, 0, 0);
     }
 
     public void setSprite(Sprite sprite) {

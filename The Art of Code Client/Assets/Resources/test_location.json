@@ -1,5 +1,11 @@
 {
     "title": "test_location",
+    "borders": {
+        "N": null,
+        "S": null,
+        "W": null,
+		"E": null
+    },
     "matrix": {
         "size_x": 100,
         "size_y": 100,
