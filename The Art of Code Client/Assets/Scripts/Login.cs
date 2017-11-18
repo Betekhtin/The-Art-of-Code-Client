@@ -9,11 +9,26 @@ public class Login : MonoBehaviour {
 
     public GameObject loginText, passwordText;
     private Socket socket;
+    private bool logged = false;
 
     void Start()
     {
         GetComponent<Button>().onClick.AddListener(onLoginClicked);
         socket = GameObject.Find("SocketObject").GetComponent<SocketController>().getSocket();
+        socket.On("auth", () => {
+            Debug.Log("Got auth event.");
+            logged = true;
+        });
+
+    }
+
+    //super-kostyl
+    void Update() {
+        if (logged)
+        {
+            Debug.Log("Changing scene");
+            SceneManager.LoadScene("Game");
+        }
     }
 
     void onLoginClicked()
@@ -27,7 +42,6 @@ public class Login : MonoBehaviour {
         {
             accessToken = (string)data;
             socket.Emit("auth", "{\"accessToken\": \"" + accessToken + "\"}");
-            socket.On("auth", () => { SceneManager.LoadScene("Game"); });
         });
     }
 
