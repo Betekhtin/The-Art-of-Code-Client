@@ -23,6 +23,7 @@ public class LocationController : MonoBehaviour {
     private JsonData mobData;
     private int x, y;
     public GameObject tilePrefab;
+    private bool died = false;
     //public GameObject testObject;
     
     // Load location
@@ -53,10 +54,12 @@ public class LocationController : MonoBehaviour {
             int new_position_x = (int)moveData["newPosition"]["x"];
             int new_position_y = (int)moveData["newPosition"]["y"];
 
-            moved = true;
-            x = new_position_x;
-            y = new_position_y;
-
+            if ((int)heroInfo["id"] == (int)moveData["object"]["id"])
+            {
+                moved = true;
+                x = new_position_x;
+                y = new_position_y;
+            }
             //location
             /*
             int hero_pos_x = (int)heroInfo["positionX"];
@@ -70,26 +73,50 @@ public class LocationController : MonoBehaviour {
 
         socket.On("moveMob", (json) =>
         {
-            Debug.Log("Mob moved.");
-            Debug.Log(json);
+           // Debug.Log("Mob moved.");
+            //Debug.Log(json);
 
-            JsonData moveData = JsonMapper.ToObject((string)json);
+            //JsonData moveData = JsonMapper.ToObject((string)json);
 
             //Get new positions and mob id
-            int mob_id = (int)moveData["id"];
-            int new_position_x = (int)moveData["newPosition"]["x"];
-            int new_position_y = (int)moveData["newPosition"]["y"];
+           // int mob_id = (int)moveData["id"];
+           // int new_position_x = (int)moveData["newPosition"]["x"];
+           // int new_position_y = (int)moveData["newPosition"]["y"];
 
             //find mob by id in objects list
-            JsonData mob = objects.Find(x => (string)x["type"] == "mob" && (int)x["id"] == mob_id);
+           /// JsonData mob = objects.Find(x => (string)x["type"] == "mob" && (int)x["id"] == mob_id);
             //get previous mob position
-            int old_position_x = (int)mob["positionX"];
-            int old_position_y = (int)mob["positionY"];
+           // int old_position_x = (int)mob["positionX"];
+           // int old_position_y = (int)mob["positionY"];
 
             //place old object in a new position
-            location[new_position_x, new_position_y].setObject(location[old_position_x, old_position_y].getObject(), mob_id, "mob");
+           // location[new_position_x, new_position_y].setObject(location[old_position_x, old_position_y].getObject(), mob_id, "mob");
             //remove object from an old tile
-            location[old_position_x, old_position_y].setObject(null, -1, null);
+            //location[old_position_x, old_position_y].setObject(null, -1, null);
+        });
+
+
+        //socket.On("dead", (json) =>
+        //{
+        //    Debug.Log("Mob died.");
+        //    Debug.Log(json);
+        //    JsonData deathData = JsonMapper.ToObject((string)json);
+
+        //    //Get id
+        //    int mob_id = (int)deathData["id"];
+
+        //    //find mob by id in objects list
+        //    JsonData mob = objects.Find(x => (string)x["type"] == "mob" && (int)x["id"] == mob_id);
+        //    int position_x = (int)mob["positionX"];
+        //    int position_y = (int)mob["positionY"];
+        //    died = true;
+        //    //vipilivaem moba
+        //    location[position_x, position_y].delObject();
+        //});
+
+        socket.On("update", (json) =>
+        {
+
         });
 
         socket.On("mobSpawned", (json) =>
