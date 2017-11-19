@@ -4,6 +4,7 @@ using System.IO;
 using UnityEngine;
 using LitJson;
 using Quobject.SocketIoClientDotNet.Client;
+using System.Linq;
 
 public class LocationController : MonoBehaviour {
 
@@ -12,11 +13,14 @@ public class LocationController : MonoBehaviour {
     static private string _sprite_path_ = "Sprites/";
     private Tile[,] location;
     private JsonData objectsInfo;
+    private List<JsonData> objects;
     private Socket socket;
     public GameObject player;
     private JsonData heroInfo;
     private bool dataRecieved = false;
     private bool moved = false;
+    private bool mobSpawned = false;
+    private JsonData mobData;
     private int x, y;
     public GameObject tilePrefab;
     //public GameObject testObject;
@@ -49,12 +53,10 @@ public class LocationController : MonoBehaviour {
             int new_position_x = (int)moveData["newPosition"]["x"];
             int new_position_y = (int)moveData["newPosition"]["y"];
 
-            if (heroInfo["id"] == moveData["object"]["id"])
-            {
-                moved = true;
-                x = new_position_x;
-                y = new_position_y;
-            }
+            moved = true;
+            x = new_position_x;
+            y = new_position_y;
+
             //location
             /*
             int hero_pos_x = (int)heroInfo["positionX"];
@@ -64,6 +66,41 @@ public class LocationController : MonoBehaviour {
             heroInfo["positionX"] = new_position_x;
             heroInfo["positionY"] = new_position_y;
             */
+        });
+
+        socket.On("moveMob", (json) =>
+        {
+            Debug.Log("Mob moved.");
+            Debug.Log(json);
+
+            JsonData moveData = JsonMapper.ToObject((string)json);
+
+            //Get new positions and mob id
+            int mob_id = (int)moveData["id"];
+            int new_position_x = (int)moveData["newPosition"]["x"];
+            int new_position_y = (int)moveData["newPosition"]["y"];
+
+            //find mob by id in objects list
+            JsonData mob = objects.Find(x => (string)x["type"] == "mob" && (int)x["id"] == mob_id);
+            //get previous mob position
+            int old_position_x = (int)mob["positionX"];
+            int old_position_y = (int)mob["positionY"];
+
+            //place old object in a new position
+            location[new_position_x, new_position_y].setObject(location[old_position_x, old_position_y].getObject(), mob_id, "mob");
+            //remove object from an old tile
+            location[old_position_x, old_position_y].setObject(null, -1, null);
+        });
+
+        socket.On("mobSpawned", (json) =>
+        {
+            Debug.Log("Mob spawned.");
+            Debug.Log(json);
+
+            mobData = JsonMapper.ToObject((string)json);
+
+            mobSpawned = true;
+
         });
 
     }
@@ -113,23 +150,25 @@ public class LocationController : MonoBehaviour {
             heroInfo = locationData["hero"];
             int hero_pos_x = (int)heroInfo["positionX"];
             int hero_pos_y = (int)heroInfo["positionY"];
-            location[hero_pos_x, hero_pos_y].setObject(player, (int)heroInfo["id"]);
+            location[hero_pos_x, hero_pos_y].setObject(player, (int)heroInfo["id"], "hero");
 
             /*
   [{"id":1,"positionX":4,"positionY":6,"type":"static","name":"tree"},{"id":2,"positionX":12,"positionY":8,"type":"static","name":"tree"},{"id":3,"positionX":20,"positionY":17,"type":"static","name":"tree"},{"id":4,"positionX":1,"positionY":7,"type":"static","name":"tree"},{"id":5,"positionX":29,"positionY":14,"type":"static","name":"tree"},{"id":6,"positionX":17,"positionY":29,"type":"static","name":"tree"},{"id":7,"positionX":78,"positionY":82,"type":"static","name":"tree"},{"id":8,"positionX":22,"positionY":1,"type":"static","name":"tree"},{"id":9,"positionX":7,"positionY":19,"type":"static","name":"tree"}]
              */
             objectsInfo = locationData["objects"];
             int objects_count = (int)locationData["objectsCount"];
+            objects = new List<JsonData>(objects_count);
             for (int i = 0; i < objects_count; ++i)
             {
                 JsonData current_elem = locationData["objects"][i];
+                objects.Add(current_elem);
                 int pos_x = (int)current_elem["positionX"];
                 int pos_y = (int)current_elem["positionY"];
                 GameObject newObject = new GameObject();
                 newObject.AddComponent<SpriteRenderer>();
                 newObject.GetComponent<SpriteRenderer>().sprite =
                     Resources.Load(_sprite_path_ + (string)current_elem["name"], typeof(Sprite)) as Sprite;
-                location[pos_x, pos_y].setObject(newObject, (int)current_elem["id"]);
+                location[pos_x, pos_y].setObject(newObject, (int)current_elem["id"], "object");
             }
 
         }
@@ -138,7 +177,20 @@ public class LocationController : MonoBehaviour {
             moved = false;
             player.transform.position = new Vector2(x, y);
         }
+        if (mobSpawned)
+        {
+            mobSpawned = false;
+            
+            int pos_x = (int)mobData["positionX"];
+            int pos_y = (int)mobData["positionY"];
+            
+            GameObject newObject = new GameObject();
+            newObject.AddComponent<SpriteRenderer>();
+            newObject.GetComponent<SpriteRenderer>().sprite =
+                Resources.Load(_sprite_path_ + "Boar", typeof(Sprite)) as Sprite;
 
+            location[pos_x, pos_y].setObject(newObject, (int)mobData["id"], "mob");
+        }
     }
 
 }

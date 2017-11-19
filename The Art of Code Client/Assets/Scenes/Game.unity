@@ -123,6 +123,7 @@ GameObject:
   - component: {fileID: 338385966}
   - component: {fileID: 338385965}
   - component: {fileID: 338385964}
+  - component: {fileID: 338385967}
   m_Layer: 5
   m_Name: CodeButton
   m_TagString: Untagged
@@ -223,6 +224,18 @@ CanvasRenderer:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 338385962}
+--- !u!114 &338385967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 338385962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7374b64f9ad10cb4586321cc02bafe43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  codePanel: {fileID: 1022292147}
 --- !u!1 &513612513
 GameObject:
   m_ObjectHideFlags: 0
@@ -426,7 +439,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 68580224ed3e209408542da448d3f596, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -786,10 +799,10 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 10
   field of view: 60
   orthographic: 1
-  orthographic size: 3.0870075
+  orthographic size: 8
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
