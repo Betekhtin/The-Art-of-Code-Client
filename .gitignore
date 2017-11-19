@@ -7,6 +7,7 @@
 */Assets/SocketIO
 */Assets/Libraries
 */Assets/Resources
+*/build1_Data/
 
 # Visual Studio 2015 cache directory
 /.vs/
@@ -35,3 +36,4 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+The Art of Code Client/build1.exe
